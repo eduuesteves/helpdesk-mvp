@@ -8,4 +8,8 @@ Sistema de monitoramento de chamados.
 - [x] Entrar na pasta backend e inicializar o projeto Node (npm init -y).
 - [x] Instalar as dependências do Express e TypeScript.
 - [x] Criar o arquivo de configuração do compilador TS (tsconfig.json).
-- [ ] Criar o arquivo principal do servidor (server.ts) com uma rota de teste (Health Check).
+- [x] Criar o arquivo principal do servidor (server.ts) com uma rota de teste (Health Check).
+- [x] Instalar o driver do PostgreSQL (pg).
+- [x] Criar o arquivo .env com a sua Connection String do banco.
+- [x] Criar o arquivo de configuração do banco (database.ts).
+- [x] Testar a conexão no server.ts.
