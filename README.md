@@ -44,6 +44,9 @@ Sistema de monitoramento de chamados.
 
 ## Frontend 🎨
 
-- [ ] Inicializar o projeto React + TypeScript usando o Vite.
-- [ ] Instalar o Axios para comunicação com a API.
-- [ ] Criar a instância base do Axios configurada para apontar para o nosso backend.
+- [x] Inicializar o projeto React + TypeScript usando o Vite.
+- [x] Instalar o Axios para comunicação com a API.
+- [x] Criar a instância base do Axios configurada para apontar para o nosso backend.
+- [x] Criar o contexto de autenticação (AuthContext.tsx).
+- [x] Criar uma interface visual simples para a tela de Login (Login.tsx).
+- [x] Atualizar o App.tsx para gerenciar as rotas visuais baseadas no login.
