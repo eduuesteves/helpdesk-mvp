@@ -1,12 +1,16 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { pool } from "./config/database";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
 
 app.use(cors());
 app.use(express.json());
+
+// Registro da rota de usuários
+app.use("/api/users", userRoutes);
 
 // Rota para garantir que a API está ativa
 app.get("/api/health", async (req: Request, res: Response) => {

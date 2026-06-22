@@ -13,3 +13,7 @@ Sistema de monitoramento de chamados.
 - [x] Criar o arquivo .env com a sua Connection String do banco.
 - [x] Criar o arquivo de configuração do banco (database.ts).
 - [x] Testar a conexão no server.ts.
+- [x] Instalar a biblioteca de criptografia bcrypt.
+- [x] Criar o Controller de Usuários (userController.ts).
+- [x] Criar o arquivo de Rotas de Usuários (userRoutes.ts).
+- [ ] Registrar as rotas de usuários no arquivo principal (server.ts).
