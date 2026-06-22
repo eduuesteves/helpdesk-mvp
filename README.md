@@ -17,7 +17,11 @@ Sistema de monitoramento de chamados.
 - [x] Criar o Controller de Usuários (userController.ts).
 - [x] Criar o arquivo de Rotas de Usuários (userRoutes.ts).
 - [x] Registrar as rotas de usuários no arquivo principal (server.ts).
-- [ ] Instalar a biblioteca jsonwebtoken.
-- [ ] Adicionar a variável de ambiente JWT_SECRET no .env.
-- [ ] Criar o método de login dentro do UserController.
-- [ ] Adicionar a rota POST /login no arquivo routes.ts.
+- [x] Instalar a biblioteca jsonwebtoken.
+- [x] Adicionar a variável de ambiente JWT_SECRET no .env.
+- [x] Criar o método de login dentro do UserController.
+- [x] Adicionar a rota POST /login no arquivo routes.ts.
+- [ ] Criar a pasta middlewares dentro de src.
+- [ ] Criar o arquivo auth.ts.
+- [ ] Criar uma rota de teste protegida para validar o middleware.
+- [ ] Atualizar o arquivo routes.ts.
