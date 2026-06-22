@@ -2,6 +2,8 @@
 
 Sistema de monitoramento de chamados.
 
+## Backend 💻
+
 - [x] Criar a pasta raiz do projeto.
 - [x] Criar as pastas backend e frontend.
 - [x] Executar o script SQL no seu banco PostgreSQL local para criar as tabelas.
@@ -36,6 +38,12 @@ Sistema de monitoramento de chamados.
 - [x] Validar se o novo status enviado é permitido (OPEN, IN_PROGRESS, RESOLVED).
 - [x] Registrar a rota protegida PATCH /tickets/:id no arquivo routes.ts.
 - [x] Criar o arquivo CommentController.ts na pasta de controllers.
-- [ ] Implementar a lógica para criar um comentário atrelado ao ticket e ao usuário logado.
-- [ ] Implementar a lógica para listar todos os comentários de um ticket específico.
-- [ ] Registrar as duas rotas protegidas no arquivo routes.ts.
+- [x] Implementar a lógica para criar um comentário atrelado ao ticket e ao usuário logado.
+- [x] Implementar a lógica para listar todos os comentários de um ticket específico.
+- [x] Registrar as duas rotas protegidas no arquivo routes.ts.
+
+## Frontend 🎨
+
+- [ ] Inicializar o projeto React + TypeScript usando o Vite.
+- [ ] Instalar o Axios para comunicação com a API.
+- [ ] Criar a instância base do Axios configurada para apontar para o nosso backend.
