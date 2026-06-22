@@ -50,3 +50,7 @@ Sistema de monitoramento de chamados.
 - [x] Criar o contexto de autenticação (AuthContext.tsx).
 - [x] Criar uma interface visual simples para a tela de Login (Login.tsx).
 - [x] Atualizar o App.tsx para gerenciar as rotas visuais baseadas no login.
+- [x] Criar o arquivo Dashboard.tsx na pasta pages.
+- [x] Criar a tipagem TypeScript para o objeto Ticket.
+- [x] Buscar os dados da API (GET /tickets) e exibi-los em uma tabela organizada.
+- [x] Atualizar o arquivo App.tsx para renderizar a página de Dashboard.
