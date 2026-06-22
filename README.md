@@ -16,4 +16,8 @@ Sistema de monitoramento de chamados.
 - [x] Instalar a biblioteca de criptografia bcrypt.
 - [x] Criar o Controller de Usuários (userController.ts).
 - [x] Criar o arquivo de Rotas de Usuários (userRoutes.ts).
-- [ ] Registrar as rotas de usuários no arquivo principal (server.ts).
+- [x] Registrar as rotas de usuários no arquivo principal (server.ts).
+- [ ] Instalar a biblioteca jsonwebtoken.
+- [ ] Adicionar a variável de ambiente JWT_SECRET no .env.
+- [ ] Criar o método de login dentro do UserController.
+- [ ] Adicionar a rota POST /login no arquivo routes.ts.
