@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 export interface AuthenticatedRequest extends Request {
     user?: {
         id: string;
-        role: string;
+        role: "ADMIN" | "EMPLOYEE";
     }
 }
 
@@ -26,7 +26,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
         // Injeta os dados decodificados (id e role) dentro da requisição
-        req.user = decoded as { id: string; role: string };
+        req.user = decoded as { id: string; role: "ADMIN" | "EMPLOYEE" };
 
         // Manda a requisição seguir em frente para o Controller
         return next();
