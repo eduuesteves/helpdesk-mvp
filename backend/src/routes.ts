@@ -20,8 +20,9 @@ routes.get('/me', authMiddleware, (req: AuthenticatedRequest, res: Response) => 
   });
 });
 
-// Rota Core do Negócio
+// Rota de Tickets
 routes.post("/tickets", authMiddleware, TicketController.create);
 routes.get("/tickets", authMiddleware, TicketController.listAll);
+routes.patch("/tickets/:id", authMiddleware, TicketController.update);
 
 export default routes;
