@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { UserController } from './controllers/UserController';
 import { AuthenticatedRequest, authMiddleware } from './middlewares/auth';
+import { TicketController } from './controllers/TicketController';
 
 const routes = Router();
 
@@ -18,5 +19,8 @@ routes.get('/me', authMiddleware, (req: AuthenticatedRequest, res: Response) => 
     user: req.user
   });
 });
+
+// Rota Core do Negócio
+routes.post("/tickets", authMiddleware, TicketController.create);
 
 export default routes;

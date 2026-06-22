@@ -21,7 +21,10 @@ Sistema de monitoramento de chamados.
 - [x] Adicionar a variável de ambiente JWT_SECRET no .env.
 - [x] Criar o método de login dentro do UserController.
 - [x] Adicionar a rota POST /login no arquivo routes.ts.
-- [ ] Criar a pasta middlewares dentro de src.
-- [ ] Criar o arquivo auth.ts.
-- [ ] Criar uma rota de teste protegida para validar o middleware.
-- [ ] Atualizar o arquivo routes.ts.
+- [x] Criar a pasta middlewares dentro de src.
+- [x] Criar o arquivo auth.ts.
+- [x] Criar uma rota de teste protegida para validar o middleware.
+- [x] Atualizar o arquivo routes.ts.
+- [x] Criar o arquivo TicketController.ts na pasta de controllers.
+- [x] Implementar a lógica de inserção de tickets associando o autor logado.
+- [x] Adicionar a rota protegida POST /tickets no arquivo routes.ts.
