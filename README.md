@@ -54,3 +54,17 @@ Sistema de monitoramento de chamados.
 - [x] Criar a tipagem TypeScript para o objeto Ticket.
 - [x] Buscar os dados da API (GET /tickets) e exibi-los em uma tabela organizada.
 - [x] Atualizar o arquivo App.tsx para renderizar a página de Dashboard.
+- [x] Criar o componente TicketDetails.tsx.
+- [x] Implementar a busca e criação de comentários vinculados ao ticket.
+- [x] Implementar a alteração de status (exclusiva para ADMIN).
+- [x] Integrar o clique da linha da tabela no Dashboard.tsx para abrir esse novo componente.
+
+## Versão 2
+
+[x] Instalar a biblioteca zod.
+[x] Criar a pasta schemas dentro de src.
+[x] Criar o arquivo authSchema.ts para definir as regras do Cadastro e do Login.
+[x] Atualizar o UserController.ts para validar os dados antes de executar as queries.
+[x] Configurar os scripts de compilação no package.json do Backend.
+[x] Ajustar a conexão do PostgreSQL para aceitar certificados SSL na nuvem.
+[x] Tornar a URL da API dinâmica no Frontend usando as variáveis do Vite.
