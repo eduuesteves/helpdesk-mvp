@@ -22,5 +22,6 @@ routes.get('/me', authMiddleware, (req: AuthenticatedRequest, res: Response) => 
 
 // Rota Core do Negócio
 routes.post("/tickets", authMiddleware, TicketController.create);
+routes.get("/tickets", authMiddleware, TicketController.listAll);
 
 export default routes;

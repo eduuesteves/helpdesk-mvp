@@ -28,3 +28,6 @@ Sistema de monitoramento de chamados.
 - [x] Criar o arquivo TicketController.ts na pasta de controllers.
 - [x] Implementar a lógica de inserção de tickets associando o autor logado.
 - [x] Adicionar a rota protegida POST /tickets no arquivo routes.ts.
+- [ ] Adicionar o método listAll no TicketController.ts.
+- [ ] Implementar a lógica de filtragem SQL condicional (Se ADMIN busca tudo, se EMPLOYEE busca apenas os dele).
+- [ ] Registrar a rota protegida GET /tickets no arquivo routes.ts.
