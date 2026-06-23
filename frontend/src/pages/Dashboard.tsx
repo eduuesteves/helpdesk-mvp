@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { TicketDetails } from './TicketDetails';
