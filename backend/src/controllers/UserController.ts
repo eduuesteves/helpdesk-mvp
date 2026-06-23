@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/database';
-import { registerSchema, loginSchema } from '../schemas/authSchema';
+import { registerSchema, loginSchema, registerBusinessSchema } from '../schemas/authSchema';
 
 export const UserController = {
   async register(req: Request, res: Response) {
