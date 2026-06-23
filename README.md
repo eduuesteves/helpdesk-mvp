@@ -61,10 +61,17 @@ Sistema de monitoramento de chamados.
 
 ## Versão 2
 
-[x] Instalar a biblioteca zod.
-[x] Criar a pasta schemas dentro de src.
-[x] Criar o arquivo authSchema.ts para definir as regras do Cadastro e do Login.
-[x] Atualizar o UserController.ts para validar os dados antes de executar as queries.
-[x] Configurar os scripts de compilação no package.json do Backend.
-[x] Ajustar a conexão do PostgreSQL para aceitar certificados SSL na nuvem.
-[x] Tornar a URL da API dinâmica no Frontend usando as variáveis do Vite.
+- [x] Instalar a biblioteca zod.
+- [x] Criar a pasta schemas dentro de src.
+- [x] Criar o arquivo authSchema.ts para definir as regras do Cadastro e do Login.
+- [x] Atualizar o UserController.ts para validar os dados antes de executar as queries.
+- [x] Configurar os scripts de compilação no package.json do Backend.
+- [x] Ajustar a conexão do PostgreSQL para aceitar certificados SSL na nuvem.
+- [x] Tornar a URL da API dinâmica no Frontend usando as variáveis do Vite.
+
+## Versão 3
+
+- [x] Criar a tabela companies.
+- [x] Alterar a tabela users para incluir a coluna company_id.
+- [x] Alterar a tabela tickets para incluir a coluna company_id.
+- [x] Rodar o script de migração no DBeaver.
