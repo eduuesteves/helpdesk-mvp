@@ -43,46 +43,46 @@ export const UserController = {
   },
 
   async login(req: Request, res: Response) {
-    try {
-      const result = loginSchema.safeParse(req.body);
-
-      if (!result.success) {
-        // Trocado .errors por .issues para alinhar com o padrão estrito do TypeScript
-        const errorMessages = result.error.issues.map(err => err.message);
-        return res.status(400).json({ error: errorMessages.join(', ') });
-      }
-
-      const { email, password } = result.data;
-
-      const userResult = await pool.query(
-        'SELECT id, name, email, password_hash, role FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (userResult.rows.length === 0) {
-        return res.status(401).json({ error: 'Credenciais inválidas.' });
-      }
-
-      const user = userResult.rows[0];
-      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Credenciais inválidas.' });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, role: user.role },
-        process.env.JWT_SECRET as string,
-        { expiresIn: '1d' }
-      );
-
-      return res.json({
-        user: { id: user.id, name: user.name, email: user.email, role: user.role },
-        token
-      });
-    } catch (error) {
-      console.error('Erro no login:', error);
-      return res.status(500).json({ error: 'Erro interno no servidor.' });
+  try {
+    const result = loginSchema.safeParse(req.body);
+    if (!result.success) {
+      const errorMessages = result.error.issues.map(err => err.message);
+      return res.status(400).json({ error: errorMessages.join(', ') });
     }
+
+    const { email, password } = result.data;
+
+    // Alterado: Adicionado company_id no SELECT
+    const userResult = await pool.query(
+      'SELECT id, name, email, password_hash, role, company_id FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Credenciais inválidas.' });
+    }
+
+    const user = userResult.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Credenciais inválidas.' });
+    }
+
+    // Alterado: company_id agora faz parte do payload encriptado do JWT
+    const token = jwt.sign(
+      { id: user.id, role: user.role, company_id: user.company_id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '1d' }
+    );
+
+    return res.json({
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      token
+    });
+  } catch (error) {
+    console.error('Erro no login:', error);
+    return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
+}
 };
