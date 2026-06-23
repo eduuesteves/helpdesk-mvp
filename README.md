@@ -88,7 +88,8 @@ Sistema de monitoramento de chamados.
 - [x] Registar a rota protegida GET /users/team no routes.ts.
 - [x] Atualizar o Dashboard.tsx no Frontend para procurar, armazenar e exibir a tabela de funcionários ativos.
 - [x] Criar a coluna plan na tabela companies com valor padrão 'FREE'.
-
 - [x] Atualizar o método create do TicketController.ts para contar chamados ativos (OPEN e IN_PROGRESS).
-
 - [x] Barrar a criação retornando status 403 Forbidden caso o limite do plano gratuito seja atingido.
+- [x] Calcular a soma de chamados ativos (OPEN + IN_PROGRESS) no componente.
+- [x] Renderizar uma barra de progresso ou texto indicador acima do formulário.
+- [x] Desativar o botão de criação e exibir um aviso corporativo caso o limite de 5 chamados seja atingido.

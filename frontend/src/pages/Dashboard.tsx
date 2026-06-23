@@ -12,7 +12,7 @@ interface Ticket {
   creator_name?: string;
 }
 
-interface TeamMember { // <-- Nova Interface
+interface TeamMember {
   id: string;
   name: string;
   email: string;
@@ -25,7 +25,7 @@ type FilterType = 'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
 export function Dashboard() {
   const { user, signOut } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [team, setTeam] = useState<TeamMember[]>([]); // <-- Novo Estado para a Equipa
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Estados dos formulários
@@ -49,7 +49,6 @@ export function Dashboard() {
         const ticketsResponse = await api.get('/tickets');
         setTickets(ticketsResponse.data);
 
-        // Se o utilizador for ADMIN, procura também a lista de membros da equipa
         if (user?.role === 'ADMIN') {
           const teamResponse = await api.get('/users/team');
           setTeam(teamResponse.data);
@@ -74,6 +73,7 @@ export function Dashboard() {
       setNewTitle('');
       setNewDescription('');
     } catch (error: any) {
+      // REGRA DE NEGÓCIO: Captura o erro 403 de limite do plano vindo do backend
       alert(error.response?.data?.error || 'Erro ao abrir chamado.');
     } finally {
       setSubmitting(false);
@@ -88,15 +88,12 @@ export function Dashboard() {
     try {
       const response = await api.post('/users/employee', { name: empName, email: empEmail, password: empPassword });
       alert('Membro adicionado com sucesso!');
-      
-      // Lógica 80/20: Adiciona o novo utilizador diretamente no estado para atualizar o ecrã na hora
       setTeam([...team, response.data]);
-      
       setEmpName('');
       setEmpEmail('');
       setEmpPassword('');
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Erro ao registar funcionário.');
+      alert(error.response?.data?.error || 'Erro ao registrar funcionário.');
     } finally {
       setCreatingUser(false);
     }
@@ -113,6 +110,10 @@ export function Dashboard() {
   const totalOpen = tickets.filter(t => t.status === 'OPEN').length;
   const totalInProgress = tickets.filter(t => t.status === 'IN_PROGRESS').length;
   const totalResolved = tickets.filter(t => t.status === 'RESOLVED').length;
+
+  // LÓGICA 80/20 FRONTIER: Cálculo de consumo do plano em tempo de execução
+  const activeTicketsCount = totalOpen + totalInProgress;
+  const isPlanLimitReached = activeTicketsCount >= 5;
 
   function getStatusStyle(status: Ticket['status']) {
     switch (status) {
@@ -162,22 +163,38 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* ZONA DO COLABORADOR (CRIAR TICKETS) */}
+      {/* ZONA DO COLABORADOR (CRIAR TICKETS COM TRAVA DE PLANO) */}
       {user?.role === 'EMPLOYEE' && (
         <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '1.25rem', fontSize: '1.1rem', fontWeight: 700 }}>Novo Chamado de Suporte</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Novo Chamado de Suporte</h3>
+            {/* Indicador visual de uso do plano */}
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, padding: '0.25rem 0.75rem', borderRadius: '20px', backgroundColor: isPlanLimitReached ? '#fee2e2' : '#f1f5f9', color: isPlanLimitReached ? '#dc2626' : '#475569' }}>
+              Uso do Plano: <strong>{activeTicketsCount} de 5</strong> chamados ativos
+            </span>
+          </div>
+
+          {/* Banner de Aviso de Bloqueio */}
+          {isPlanLimitReached && (
+            <div style={{ backgroundColor: '#fff7ed', border: '1px solid #ffedd5', borderRadius: '8px', padding: '1rem', marginBottom: '1.25rem', color: '#c2410c', fontSize: '0.9rem', fontWeight: 500 }}>
+              ⚠️ <strong>Limite do plano gratuito atingido!</strong> Sua empresa atingiu o teto de 5 chamados simultâneos ativos. Peça ao administrador para realizar o upgrade para o plano <strong>PRO</strong>.
+            </div>
+          )}
+
           <form onSubmit={handleCreateTicket} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título do problema..." required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
-            <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} placeholder="Descreva os detalhes..." required rows={3} style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }} />
-            <button type="submit" disabled={submitting} style={{ alignSelf: 'flex-start', padding: '0.75rem 2rem', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Criar Ticket</button>
+            <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} disabled={isPlanLimitReached} placeholder={isPlanLimitReached ? "Criação bloqueada pelo plano" : "Título do problema..."} required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: isPlanLimitReached ? '#f8fafc' : '#fff' }} />
+            <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} disabled={isPlanLimitReached} placeholder={isPlanLimitReached ? "Faça o upgrade para liberar novos chamados" : "Descreva os detalhes..."} required rows={3} style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontFamily: 'inherit', backgroundColor: isPlanLimitReached ? '#f8fafc' : '#fff' }} />
+            
+            <button type="submit" disabled={submitting || isPlanLimitReached} style={{ alignSelf: 'flex-start', padding: '0.75rem 2rem', backgroundColor: isPlanLimitReached ? '#cbd5e1' : '#0f172a', color: isPlanLimitReached ? '#94a3b8' : '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: isPlanLimitReached ? 'not-allowed' : 'pointer' }}>
+              {submitting ? 'Criando...' : 'Criar Ticket'}
+            </button>
           </form>
         </div>
       )}
 
-      {/* ZONA DO ADMIN (GESTÃO DE EQUIPA DE FORMA MODERNA) */}
+      {/* ZONA DO ADMIN (GESTÃO DE EQUIPA) */}
       {user?.role === 'ADMIN' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem', alignItems: 'start' }}>
-          {/* Formulário */}
           <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', border: '1px solid #e2e8f0' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.25rem', fontSize: '1.1rem', fontWeight: 700 }}>👥 Expandir Equipa</h3>
             <form onSubmit={handleCreateEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -188,7 +205,6 @@ export function Dashboard() {
             </form>
           </div>
 
-          {/* Listagem da Equipa Real-time */}
           <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', border: '1px solid #e2e8f0', maxHeight: '290px', overflowY: 'auto' }}>
             <h3 style={{ marginTop: 0, marginBottom: '1.25rem', fontSize: '1.1rem', fontWeight: 700 }}>Membros Ativos ({team.length})</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
