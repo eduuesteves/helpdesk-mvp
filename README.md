@@ -84,6 +84,11 @@ Sistema de monitoramento de chamados.
 - [x] Criar a rota protegida /api/users/employee no Backend.
 - [x] Implementar a lógica de inserção forçando o company_id do Admin logado.
 - [x] Criar o formulário visual de "Adicionar Membro da Equipa" no Frontend React (exclusivo para utilizadores ADMIN).
-- [ ] Criar o método listTeam no UserController.ts (filtrado por company_id).
-- [ ] Registar a rota protegida GET /users/team no routes.ts.
-- [ ] Atualizar o Dashboard.tsx no Frontend para procurar, armazenar e exibir a tabela de funcionários ativos.
+- [x] Criar o método listTeam no UserController.ts (filtrado por company_id).
+- [x] Registar a rota protegida GET /users/team no routes.ts.
+- [x] Atualizar o Dashboard.tsx no Frontend para procurar, armazenar e exibir a tabela de funcionários ativos.
+- [x] Criar a coluna plan na tabela companies com valor padrão 'FREE'.
+
+- [x] Atualizar o método create do TicketController.ts para contar chamados ativos (OPEN e IN_PROGRESS).
+
+- [x] Barrar a criação retornando status 403 Forbidden caso o limite do plano gratuito seja atingido.

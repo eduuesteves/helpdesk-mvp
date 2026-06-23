@@ -55,7 +55,7 @@ export const TicketController = {
     console.error('Erro ao criar ticket:', error);
     return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
-}
+},
 
   async listAll(req: Request, res: Response) {
     try {
