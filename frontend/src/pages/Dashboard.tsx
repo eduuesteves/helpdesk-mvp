@@ -12,21 +12,19 @@ interface Ticket {
   creator_name?: string;
 }
 
-type FilterType = 'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'; // Tipagem do filtro
+type FilterType = 'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados do formulário
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Estados de navegação e filtros
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [filterStatus, setFilterStatus] = useState<FilterType>('ALL'); // <-- Novo Estado de Filtro
+  const [filterStatus, setFilterStatus] = useState<FilterType>('ALL');
 
   useEffect(() => {
     async function loadTickets() {
@@ -59,7 +57,11 @@ export function Dashboard() {
     }
   }
 
-  // Lógica 80/20: Filtra os tickets na memória antes de renderizar a tabela
+  // Lógica 80/20: Computação de métricas gerenciais em tempo de execução
+  const totalOpen = tickets.filter(t => t.status === 'OPEN').length;
+  const totalInProgress = tickets.filter(t => t.status === 'IN_PROGRESS').length;
+  const totalResolved = tickets.filter(t => t.status === 'RESOLVED').length;
+
   const filteredTickets = filterStatus === 'ALL' 
     ? tickets 
     : tickets.filter(ticket => ticket.status === filterStatus);
@@ -96,6 +98,22 @@ export function Dashboard() {
         </button>
       </header>
 
+      {/* Seção de Métricas Gerenciais (Cards KPIs) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #0d47a1', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Não Atendidos</span>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalOpen}</h2>
+        </div>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #e65100', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Em Andamento</span>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalInProgress}</h2>
+        </div>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #1b5e20', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Resolvidos</span>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalResolved}</h2>
+        </div>
+      </div>
+
       {user?.role === 'EMPLOYEE' && (
         <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
           <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Abrir Novo Chamado</h3>
@@ -118,7 +136,6 @@ export function Dashboard() {
       <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
         <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Lista de Chamados</h3>
 
-        {/* Interface de Abas/Filtros */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #dee2e6', paddingBottom: '0.75rem' }}>
           {(['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED'] as FilterType[]).map(status => (
             <button
@@ -143,7 +160,7 @@ export function Dashboard() {
 
         {loading ? (
           <p>Carregando chamados...</p>
-        ) : filteredTickets.length === 0 ? ( // <-- Checa se o array filtrado está vazio
+        ) : filteredTickets.length === 0 ? (
           <p style={{ color: '#6c757d', textAlign: 'center', padding: '2rem' }}>Nenhum chamado neste status.</p>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -157,7 +174,7 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map(ticket => ( // <-- Mapeia em cima do array filtrado
+              {filteredTickets.map(ticket => (
                 <tr 
                   key={ticket.id} 
                   onClick={() => setSelectedTicket(ticket)}
@@ -167,7 +184,7 @@ export function Dashboard() {
                 >
                   <td style={{ padding: '1rem 0.75rem', fontWeight: 'bold', color: '#0070f3' }}>{ticket.title}</td>
                   <td style={{ padding: '1rem 0.75rem', color: '#495057', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.description}</td>
-                  {user?.role === 'ADMIN' && <td style={{ padding: '1rem 0.75rem' }}>{user.name}</td>}
+                  {user?.role === 'ADMIN' && <td style={{ padding: '1rem 0.75rem' }}>{ticket.creator_name || 'Desconhecido'}</td>}
                   <td style={{ padding: '1rem 0.75rem', color: '#6c757d' }}>{new Date(ticket.created_at).toLocaleDateString('pt-BR')}</td>
                   <td style={{ padding: '1rem 0.75rem' }}>
                     <span style={{ padding: '0.25rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', ...getStatusStyle(ticket.status) }}>
