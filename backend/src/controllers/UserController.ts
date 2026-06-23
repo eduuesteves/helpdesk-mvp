@@ -156,12 +156,15 @@ export const UserController = {
     }
 
     const authReq = req as AuthenticatedRequest;
+    console.log("DADOS DO USUÁRIO LOGADO NO BACKEND:", authReq.user);
     const adminRole = authReq.user?.role;
     const companyId = authReq.user?.company_id; // <-- Puxa a empresa do Admin logado
 
     // Defesa de Segurança (RBAC): Apenas ADMINs da empresa podem criar utilizadores aqui
     if (adminRole !== 'ADMIN') {
-      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem gerir a equipa.' });
+      return res.status(403).json({ 
+        error: `Acesso negado. Sua role atual é: ${adminRole}` 
+      });
     }
 
     const { name, email, password } = result.data;
