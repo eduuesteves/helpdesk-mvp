@@ -6,6 +6,7 @@ import { CommentController } from './controllers/CommentController';
 
 const routes = Router();
 
+routes.post('/auth/register-business', UserController.registerBusiness);
 
 // Rota PÚBLICAS (Qualquer um acessa)
 routes.post('/users', UserController.register);

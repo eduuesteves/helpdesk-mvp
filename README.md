@@ -75,6 +75,9 @@ Sistema de monitoramento de chamados.
 - [x] Alterar a tabela users para incluir a coluna company_id.
 - [x] Alterar a tabela tickets para incluir a coluna company_id.
 - [x] Rodar o script de migração no DBeaver.
-- [ ] Atualizar a interface AuthenticatedRequest no middleware de autenticação.
-- [ ] Alterar o UserController.ts para incluir o company_id no Token JWT durante o Login.
-- [ ] Modificar o TicketController.ts para aplicar o filtro WHERE company_id = $1 na criação e listagem.
+- [x] Atualizar a interface AuthenticatedRequest no middleware de autenticação.
+- [x] Alterar o UserController.ts para incluir o company_id no Token JWT durante o Login.
+- [x] Modificar o TicketController.ts para aplicar o filtro WHERE company_id = $1 na criação e listagem.
+- [x] Criar o schema do Zod para validação do cadastro empresarial.
+- [x] Implementar o método registerBusiness no UserController.ts com suporte a Transações SQL.
+- [x] Registrar a rota pública /api/auth/register-business no arquivo de rotas.
