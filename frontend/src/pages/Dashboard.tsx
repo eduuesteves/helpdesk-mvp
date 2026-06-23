@@ -27,7 +27,31 @@ export function Dashboard() {
   // Estados de filtros avançados
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterType>('ALL');
-  const [searchTerm, setSearchTerm] = useState(''); // <-- Novo Estado de Busca
+  const [searchTerm, setSearchTerm] = useState('');
+
+    
+    const [empName, setEmpName] = useState('');
+    const [empEmail, setEmpEmail] = useState('');
+    const [empPassword, setEmpPassword] = useState('');
+    const [creatingUser, setCreatingUser] = useState(false);
+
+    async function handleCreateEmployee(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!empName.trim() || !empEmail.trim() || !empPassword.trim()) return;
+
+    setCreatingUser(true);
+    try {
+        await api.post('/users/employee', { name: empName, email: empEmail, password: empPassword });
+        alert('Funcionário registado com sucesso! Ele já pode iniciar sessão.');
+        setEmpName('');
+        setEmpEmail('');
+        setEmpPassword('');
+    } catch (error: any) {
+        alert(error.response?.data?.error || 'Erro ao registar funcionário.');
+    } finally {
+        setCreatingUser(false);
+}
+}
 
   useEffect(() => {
     async function loadTickets() {
@@ -153,6 +177,19 @@ export function Dashboard() {
           </form>
         </div>
       )}
+      {user?.role === 'ADMIN' && (
+  <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
+    <h3 style={{ marginTop: 0, marginBottom: '1.25rem', fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }}>👥 Adicionar Colaborador à Equipa</h3>
+    <form onSubmit={handleCreateEmployee} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      <input type="text" value={empName} onChange={e => setEmpName(e.target.value)} placeholder="Nome do Funcionário" required style={{ flex: 1, minWidth: '200px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }} />
+      <input type="email" value={empEmail} onChange={e => setEmpEmail(e.target.value)} placeholder="E-mail Corporativo" required style={{ flex: 1, minWidth: '200px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }} />
+      <input type="password" value={empPassword} onChange={e => setEmpPassword(e.target.value)} placeholder="Senha Inicial" required style={{ flex: 1, minWidth: '150px', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }} />
+      <button type="submit" disabled={creatingUser} style={{ padding: '0.65rem 1.5rem', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}>
+        {creatingUser ? 'A gravar...' : 'Adicionar Membro'}
+      </button>
+    </form>
+  </div>
+)}
 
       {/* PAINEL DE FILTROS E TABELA */}
       <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}>

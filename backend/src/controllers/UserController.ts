@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/database';
 import { registerSchema, loginSchema, registerBusinessSchema } from '../schemas/authSchema';
+import { AuthenticatedRequest } from '../middlewares/auth';
 
 export const UserController = {
   async register(req: Request, res: Response) {
@@ -144,5 +145,48 @@ export const UserController = {
       // Libera o cliente de volta para o pool de conexões (Obrigatório de mercado!)
       client.release();
     }
-  } 
+  },
+  async createEmployee(req: Request, res: Response) {
+  try {
+    // Usamos o schema de registo normal para validar os dados do funcionário
+    const result = registerSchema.safeParse(req.body);
+    if (!result.success) {
+      const errorMessages = result.error.issues.map(err => err.message);
+      return res.status(400).json({ error: errorMessages.join(', ') });
+    }
+
+    const authReq = req as AuthenticatedRequest;
+    const adminRole = authReq.user?.role;
+    const companyId = authReq.user?.company_id; // <-- Puxa a empresa do Admin logado
+
+    // Defesa de Segurança (RBAC): Apenas ADMINs da empresa podem criar utilizadores aqui
+    if (adminRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem gerir a equipa.' });
+    }
+
+    const { name, email, password } = result.data;
+
+    // Verifica se o e-mail já existe no sistema global
+    const userExists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (userExists.rows.length > 0) {
+      return res.status(400).json({ error: 'Este e-mail já está registado.' });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Inserção forçando o nível 'EMPLOYEE' e o 'company_id' do administrador
+    const newEmployee = await pool.query(
+      `INSERT INTO users (name, email, password_hash, role, company_id)
+       VALUES ($1, $2, $3, 'EMPLOYEE', $4)
+       RETURNING id, name, email, role, created_at`,
+      [name, email, passwordHash, companyId]
+    );
+
+    return res.status(201).json(newEmployee.rows[0]);
+  } catch (error) {
+    console.error('Erro ao criar funcionário:', error);
+    return res.status(500).json({ error: 'Erro interno ao criar utilizador.' });
+  }
+  }
 };

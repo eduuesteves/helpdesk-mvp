@@ -7,6 +7,8 @@ import { CommentController } from './controllers/CommentController';
 const routes = Router();
 
 routes.post('/auth/register-business', UserController.registerBusiness);
+// Rota protegida por token: Apenas o Admin logado pode aceder
+routes.post('/users/employee', UserController.createEmployee);
 
 // Rota PÚBLICAS (Qualquer um acessa)
 routes.post('/users', UserController.register);

@@ -81,3 +81,6 @@ Sistema de monitoramento de chamados.
 - [x] Criar o schema do Zod para validação do cadastro empresarial.
 - [x] Implementar o método registerBusiness no UserController.ts com suporte a Transações SQL.
 - [x] Registrar a rota pública /api/auth/register-business no arquivo de rotas.
+- [ ] Criar a rota protegida /api/users/employee no Backend.
+- [ ] Implementar a lógica de inserção forçando o company_id do Admin logado.
+- [ ] Criar o formulário visual de "Adicionar Membro da Equipa" no Frontend React (exclusivo para utilizadores ADMIN).
