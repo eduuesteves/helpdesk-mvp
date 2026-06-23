@@ -5,32 +5,57 @@ import { createTicketSchema, updateTicketSchema } from '../schemas/ticketSchema'
 
 export const TicketController = {
   async create(req: Request, res: Response) {
-    try {
-      const result = createTicketSchema.safeParse(req.body);
-      if (!result.success) {
-        const errorMessages = result.error.issues.map(err => err.message);
-        return res.status(400).json({ error: errorMessages.join(', ') });
-      }
-
-      const authReq = req as AuthenticatedRequest;
-      const { title, description } = result.data;
-      const userId = authReq.user?.id;
-      const companyId = authReq.user?.company_id; // <-- Puxa a empresa do token
-
-      // Alterado: Gravamos o company_id no insert do ticket
-      const newTicket = await pool.query(
-        `INSERT INTO tickets (title, description, created_by, company_id)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id, title, description, status, created_by, created_at`,
-        [title, description, userId, companyId]
-      );
-
-      return res.status(201).json(newTicket.rows[0]);
-    } catch (error) {
-      console.error('Erro ao criar ticket:', error);
-      return res.status(500).json({ error: 'Erro interno no servidor.' });
+  try {
+    const result = createTicketSchema.safeParse(req.body);
+    if (!result.success) {
+      const errorMessages = result.error.issues.map(err => err.message);
+      return res.status(400).json({ error: errorMessages.join(', ') });
     }
-  },
+
+    const authReq = req as AuthenticatedRequest;
+    const { title, description } = result.data;
+    const userId = authReq.user?.id;
+    const companyId = authReq.user?.company_id;
+
+    // 1. REGRA 80/20 SaaS: Buscar o plano atual da empresa
+    const companyQuery = await pool.query(
+      'SELECT plan FROM companies WHERE id = $1',
+      [companyId]
+    );
+    const currentPlan = companyQuery.rows[0]?.plan;
+
+    // 2. Se a empresa for do plano FREE, checamos a quantidade de chamados ativos
+    if (currentPlan === 'FREE') {
+      const activeTicketsQuery = await pool.query(
+        `SELECT COUNT(id) FROM tickets 
+         WHERE company_id = $1 AND status IN ('OPEN', 'IN_PROGRESS')`,
+        [companyId]
+      );
+      
+      const activeCount = parseInt(activeTicketsQuery.rows[0].count, 10);
+
+      // Limite estrito de mercado para o plano gratuito
+      if (activeCount >= 5) {
+        return res.status(403).json({ 
+          error: 'Limite do plano atingido. Sua empresa possui 5 chamados ativos. Faça upgrade para o plano PRO para abrir chamados ilimitados!' 
+        });
+      }
+    }
+
+    // 3. Se passou na trava, prossegue com a criação normal do ticket
+    const newTicket = await pool.query(
+      `INSERT INTO tickets (title, description, created_by, company_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, title, description, status, created_by, created_at`,
+      [title, description, userId, companyId]
+    );
+
+    return res.status(201).json(newTicket.rows[0]);
+  } catch (error) {
+    console.error('Erro ao criar ticket:', error);
+    return res.status(500).json({ error: 'Erro interno no servidor.' });
+  }
+}
 
   async listAll(req: Request, res: Response) {
     try {
