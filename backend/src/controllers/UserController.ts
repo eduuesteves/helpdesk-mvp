@@ -191,5 +191,31 @@ export const UserController = {
     console.error('Erro ao criar funcionário:', error);
     return res.status(500).json({ error: 'Erro interno ao criar utilizador.' });
   }
+  },
+  async listTeam(req: Request, res: Response) {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const companyId = authReq.user?.company_id;
+    const adminRole = authReq.user?.role;
+
+    // Segurança: Apenas administradores podem auditar a lista de membros da equipa
+    if (adminRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+
+    // Procura apenas os utilizadores da mesma empresa, ocultando a hash da password por segurança
+    const teamResult = await pool.query(
+      `SELECT id, name, email, role, created_at 
+       FROM users 
+       WHERE company_id = $1 
+       ORDER BY name ASC`,
+      [companyId]
+    );
+
+    return res.json(teamResult.rows);
+  } catch (error) {
+    console.error('Erro ao listar equipa:', error);
+    return res.status(500).json({ error: 'Erro interno ao listar equipa.' });
   }
+}
 };

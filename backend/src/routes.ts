@@ -10,6 +10,7 @@ routes.post('/auth/register-business', UserController.registerBusiness);
 
 // Rota protegida por token: Apenas o Admin logado pode aceder
 routes.post('/users/employee', authMiddleware, UserController.createEmployee);
+routes.get('/users/team', authMiddleware, UserController.listTeam);
 
 // Rota PÚBLICAS (Qualquer um acessa)
 routes.post('/users', UserController.register);
