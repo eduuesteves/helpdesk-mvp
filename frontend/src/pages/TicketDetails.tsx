@@ -215,9 +215,9 @@ export function TicketDetails({ ticket, onBack }: TicketDetailsProps) {
                         <div className="timeline-content-card" style={{ borderLeft: isSystem ? `3px solid ${theme.textMuted}` : '1px solid ' + theme.border }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                             <span style={{ fontWeight: 600, fontSize: '0.9rem', color: isSystem ? theme.textMuted : theme.text }}>
-                              {isSystem ? 'Serviço de Auditoria Automatizado' : comment.name || comment.user_name}
-                              {!isSystem && <span style={{ fontWeight: 400, color: theme.textMuted, fontSize: '0.8rem' }}> • {comment.user_role}</span>}
-                            </span>
+  {isSystem ? 'Automação do Sistema' : comment.user_name}
+  {!isSystem && <span style={{ fontWeight: 400, color: theme.textMuted, fontSize: '0.8rem' }}> • {comment.user_role}</span>}
+</span>
                             <span style={{ color: theme.textMuted, fontSize: '0.8rem' }}>
                               {new Date(comment.created_at).toLocaleDateString('pt-BR')}
                             </span>

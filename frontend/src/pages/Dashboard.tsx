@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { TicketDetails } from './TicketDetails';
 import { TeamManagement } from '../components/TeamManagement.tsx'; // <-- Novo Componente
+import { UserProfile } from '../components/UserProfile.tsx';
 
 interface Ticket {
   id: string;
@@ -162,7 +163,6 @@ export function Dashboard() {
               👤 Meu Perfil
             </button>
           </div>
-
           {/* UTILS PANEL */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button onClick={toggleTheme} className="interactive-btn" style={{ padding: '0.5rem', backgroundColor: theme.card, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: theme.shadow }}>
@@ -175,18 +175,16 @@ export function Dashboard() {
         </header>
 
         {/* RENDERIZADOR DINÂMICO DE VISÕES CONTROLANDO O ESCOPO */}
-        {currentView === 'team' && user?.role === 'ADMIN' && (
-          <TeamManagement isDarkMode={isDarkMode} theme={theme} />
-        )}
+{currentView === 'team' && user?.role === 'ADMIN' && (
+  <TeamManagement isDarkMode={isDarkMode} theme={theme} />
+)}
 
-        {currentView === 'profile' && (
-          <div style={{ color: theme.textMuted, fontSize: '1rem', textAlign: 'center', padding: '4rem' }}>
-            🔨 Tela de perfil em construção na próxima micro-tarefa...
-          </div>
-        )}
+{currentView === 'profile' && (
+  <UserProfile theme={theme} />
+)}
 
-        {currentView === 'tickets' && (
-          <>
+{currentView === 'tickets' && (
+  <>
             {/* KPI CARDS - APPLE GRID */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
               <div className="interactive-card" style={{ backgroundColor: theme.card, padding: '1.75rem', borderRadius: '14px', border: `1px solid ${theme.border}`, boxShadow: theme.shadow }}>
