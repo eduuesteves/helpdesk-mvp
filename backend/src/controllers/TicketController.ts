@@ -94,42 +94,69 @@ export const TicketController = {
   },
 
   async update(req: Request, res: Response) {
-    try {
-      const result = updateTicketSchema.safeParse(req.body);
-      if (!result.success) {
-        const errorMessages = result.error.issues.map(err => err.message);
-        return res.status(400).json({ error: errorMessages.join(', ') });
-      }
-
-      const authReq = req as AuthenticatedRequest;
-      const { id } = req.params;
-      const { status, assigned_to } = result.data;
-      const userRole = authReq.user?.role;
-      const companyId = authReq.user?.company_id;
-
-      if (userRole !== 'ADMIN') {
-        return res.status(403).json({ error: 'Acesso negado.' });
-      }
-
-      // Alterado: Garante que o ADMIN só atualiza o ticket se ele pertencer à empresa dele
-      const updatedTicket = await pool.query(
-        `UPDATE tickets
-         SET status = COALESCE($1, status),
-             assigned_to = COALESCE($2, assigned_to),
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = $3 AND company_id = $4
-         RETURNING id, title, description, status, assigned_to, updated_at`,
-        [status || null, assigned_to || null, id, companyId]
-      );
-
-      if (updatedTicket.rows.length === 0) {
-        return res.status(404).json({ error: 'Chamado não encontrado nesta organização.' });
-      }
-
-      return res.json(updatedTicket.rows[0]);
-    } catch (error) {
-      console.error('Erro ao atualizar ticket:', error);
-      return res.status(500).json({ error: 'Erro interno no servidor.' });
+  try {
+    const result = updateTicketSchema.safeParse(req.body);
+    if (!result.success) {
+      const errorMessages = result.error.issues.map(err => err.message);
+      return res.status(400).json({ error: errorMessages.join(', ') });
     }
+
+    const authReq = req as AuthenticatedRequest;
+    const { id } = req.params;
+    const { status, assigned_to } = result.data;
+    const userRole = authReq.user?.role;
+    const companyId = authReq.user?.company_id;
+    const adminId = authReq.user?.id; // <-- ID do Admin que está operando
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+
+    // 1. REGRA 80/20: Buscar o status antigo antes de atualizar para sabermos o que mudou
+    const currentTicketQuery = await pool.query(
+      'SELECT status FROM tickets WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+
+    if (currentTicketQuery.rows.length === 0) {
+      return res.status(404).json({ error: 'Chamado não encontrado nesta organização.' });
+    }
+
+    const oldStatus = currentTicketQuery.rows[0].status;
+
+    // 2. Executa a atualização do Ticket
+    const updatedTicket = await pool.query(
+      `UPDATE tickets
+       SET status = COALESCE($1, status),
+           assigned_to = COALESCE($2, assigned_to),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3 AND company_id = $4
+       RETURNING id, title, description, status, assigned_to, updated_at`,
+      [status || null, assigned_to || null, id, companyId]
+    );
+
+    // 3. SE O STATUS MUDOU: Injeta automaticamente o log na timeline de comentários
+    if (status && status !== oldStatus) {
+      const statusMap: Record<string, string> = {
+        'OPEN': 'ABERTO',
+        'IN_PROGRESS': 'EM ANDAMENTO',
+        'RESOLVED': 'RESOLVIDO'
+      };
+
+      const mensagemAuditoria = `🤖 [SISTEMA]: Status alterado de ${statusMap[oldStatus] || oldStatus} para ${statusMap[status]}.`;
+
+      // Insere o comentário do sistema (Substitua 'user_id' ou 'content' conforme as colunas da sua tabela de comentários)
+      await pool.query(
+        `INSERT INTO comments (ticket_id, user_id, content) 
+         VALUES ($1, $2, $3)`,
+        [id, adminId, mensagemAuditoria]
+      );
+    }
+
+    return res.json(updatedTicket.rows[0]);
+  } catch (error) {
+    console.error('Erro ao atualizar ticket:', error);
+    return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
+}
 };

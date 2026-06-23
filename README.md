@@ -93,3 +93,6 @@ Sistema de monitoramento de chamados.
 - [x] Calcular a soma de chamados ativos (OPEN + IN_PROGRESS) no componente.
 - [x] Renderizar uma barra de progresso ou texto indicador acima do formulário.
 - [x] Desativar o botão de criação e exibir um aviso corporativo caso o limite de 5 chamados seja atingido.
+- [x] Mapear os status para nomes amigáveis em português (OPEN -> ABERTO, etc).
+- [x] Modificar o método update no TicketController.ts.
+- [x] Injetar o comentário automatizado do sistema atrelado ao ID do Admin que realizou a mudança.
