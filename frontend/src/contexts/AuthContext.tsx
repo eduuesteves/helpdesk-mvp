@@ -12,8 +12,13 @@ interface AuthContextType {
     signed: boolean;
     user: User | null;
     loading: boolean;
-    signIn: (email: string, password: string) => Promise<void>;
+    signIn: (data: SignInData) => Promise<void>;
     signOut: () => void;
+}
+
+interface SignInData {
+  email: string;
+  password: string;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -33,17 +38,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
     }, []);
 
-    async function signIn(email: string, password: string) {
-       // Faz a chamada para o endpoint de login que criamos no backend
-       const response = await api.post("/login", { email, password });
-       const { user: loggedUser, token } = response.data;
+    async function signIn({ email, password }: SignInData) {
+  try {
+    // 🔍 LOG 1: Ver o que o front está prestes a enviar
+    console.log("Enviando dados para o login:", { email, password });
 
-       setUser(loggedUser);
-       
-       // Salva os dados de forma persistente no navegador
-       localStorage.setItem("@Helpdesk:user", JSON.stringify(loggedUser));
-       localStorage.setItem("@Helpdesk:token", token);
-    }
+    // NOTA: Se o seu backend original usava apenas '/login' (sem o /auth),
+    // e o seu axios já tem '/api' no baseURL, esta linha abaixo chama '/api/auth/login'.
+    const response = await api.post('/login', { email, password });
+
+    const { token, user } = response.data;
+    localStorage.setItem('@helpdesk:token', token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setUser(user);
+
+  } catch (error: any) {
+    // 🔍 DIAGNÓSTICO EM TEMPO REAL:
+    const status = error.response?.status; // Ex: 404, 400, 411, 500
+    const backendError = error.response?.data; // A mensagem real do Zod ou do Postgres
+
+    console.error("Erro completo interceptado:", error.response);
+    
+    // Isto vai abrir um pop-up na sua tela explicando o mistério:
+    alert(`🚨 ALERTA DE DEBUG TRACE:\nStatus HTTP: ${status}\nResposta do Servidor: ${JSON.stringify(backendError)}`);
+    
+    throw error;
+  }
+}
 
     function signOut() {
         localStorage.removeItem("@Helpdesk:user");
