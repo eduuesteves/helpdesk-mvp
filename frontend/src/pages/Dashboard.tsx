@@ -19,12 +19,15 @@ export function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Estados do formulário
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Estados de filtros avançados
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterType>('ALL');
+  const [searchTerm, setSearchTerm] = useState(''); // <-- Novo Estado de Busca
 
   useEffect(() => {
     async function loadTickets() {
@@ -57,20 +60,26 @@ export function Dashboard() {
     }
   }
 
-  // Lógica 80/20: Computação de métricas gerenciais em tempo de execução
+  // Multi-Filtro Inteligente 80/20: Status AND Termo de Busca
+  const filteredTickets = tickets.filter(ticket => {
+    const matchesStatus = filterStatus === 'ALL' || ticket.status === filterStatus;
+    const matchesSearch = 
+      ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesStatus && matchesSearch;
+  });
+
+  // KPI Computados
   const totalOpen = tickets.filter(t => t.status === 'OPEN').length;
   const totalInProgress = tickets.filter(t => t.status === 'IN_PROGRESS').length;
   const totalResolved = tickets.filter(t => t.status === 'RESOLVED').length;
 
-  const filteredTickets = filterStatus === 'ALL' 
-    ? tickets 
-    : tickets.filter(ticket => ticket.status === filterStatus);
-
   function getStatusStyle(status: Ticket['status']) {
     switch (status) {
-      case 'OPEN': return { backgroundColor: '#e3f2fd', color: '#0d47a1' };
-      case 'IN_PROGRESS': return { backgroundColor: '#fff3e0', color: '#e65100' };
-      case 'RESOLVED': return { backgroundColor: '#e8f5e9', color: '#1b5e20' };
+      case 'OPEN': return { backgroundColor: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' };
+      case 'IN_PROGRESS': return { backgroundColor: '#fff7ed', color: '#9a3412', border: '1px solid #fed7aa' };
+      case 'RESOLVED': return { backgroundColor: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' };
     }
   }
 
@@ -87,107 +96,112 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #dee2e6', paddingBottom: '1rem', marginBottom: '2rem' }}>
+    <div style={{ fontFamily: '"Inter", system-ui, sans-serif', padding: '2.5rem', backgroundColor: '#f1f5f9', minHeight: '100vh', color: '#0f172a' }}>
+      
+      {/* HEADER POLIDO */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: '1.25rem 2rem', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ margin: 0, color: '#212529' }}>Helpdesk Central</h1>
-          <p style={{ margin: '0.25rem 0 0 0', color: '#6c757d' }}>Olá, <strong>{user?.name}</strong> | Nível: {user?.role}</p>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#1e293b' }}>⚡ Helpdesk Pro</h1>
+          <p style={{ margin: '0.25rem 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>Conectado como: <strong style={{ color: '#334155' }}>{user?.name}</strong> ({user?.role})</p>
         </div>
-        <button onClick={signOut} style={{ padding: '0.6rem 1.2rem', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Sair do Sistema
+        <button onClick={signOut} style={{ padding: '0.6rem 1.2rem', backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#fee2e2'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#fca5a5'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}>
+          Sair
         </button>
       </header>
 
-      {/* Seção de Métricas Gerenciais (Cards KPIs) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #0d47a1', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Não Atendidos</span>
-          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalOpen}</h2>
+      {/* KPI CARDS MODERNOS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }}></span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Abertos</span>
+          </div>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2.25rem', fontWeight: 700, color: '#1e293b' }}>{totalOpen} <span style={{ fontSize: '1rem', fontWeight: 400, color: '#94a3b8' }}>casos</span></h2>
         </div>
-        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #e65100', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Em Andamento</span>
-          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalInProgress}</h2>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f97316' }}></span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Em Triagem</span>
+          </div>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2.25rem', fontWeight: 700, color: '#1e293b' }}>{totalInProgress} <span style={{ fontSize: '1rem', fontWeight: 400, color: '#94a3b8' }}>atendimentos</span></h2>
         </div>
-        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', borderLeft: '5px solid #1b5e20', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6c757d', textTransform: 'uppercase' }}>Resolvidos</span>
-          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2rem', color: '#212529' }}>{totalResolved}</h2>
+        <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Finalizados</span>
+          </div>
+          <h2 style={{ margin: '0.5rem 0 0 0', fontSize: '2.25rem', fontWeight: 700, color: '#1e293b' }}>{totalResolved} <span style={{ fontSize: '1rem', fontWeight: 400, color: '#94a3b8' }}>concluídos</span></h2>
         </div>
       </div>
 
+      {/* FORMULÁRIO ENXUTO (EMPLOYEE) */}
       {user?.role === 'EMPLOYEE' && (
-        <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Abrir Novo Chamado</h3>
-          <form onSubmit={handleCreateTicket} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Título do Problema</label>
-              <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Ex: Impressora do RH não liga" required style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '1.25rem', fontSize: '1.1rem', fontWeight: 700 }}>Novo Chamado de Suporte</h3>
+          <form onSubmit={handleCreateTicket} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem' }}>
+              <div>
+                <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título sumário do problema (ex: Falha na VPN corporativa)" required style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', outline: 'none', fontSize: '0.95rem' }} />
+              </div>
+              <div>
+                <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} placeholder="Descreva os detalhes do erro, o que aconteceu e mensagens de erro que apareceram na tela..." required rows={3} style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', resize: 'vertical', outline: 'none', fontSize: '0.95rem', fontFamily: 'inherit' }} />
+              </div>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Descrição Detalhada</label>
-              <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} placeholder="Descreva o que aconteceu..." required rows={3} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', resize: 'vertical' }} />
-            </div>
-            <button type="submit" disabled={submitting} style={{ alignSelf: 'flex-start', padding: '0.6rem 1.5rem', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
-              {submitting ? 'Enviando...' : 'Criar Chamado'}
+            <button type="submit" disabled={submitting} style={{ alignSelf: 'flex-start', padding: '0.75rem 2rem', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'opacity 0.2s', fontSize: '0.95rem' }}>
+              {submitting ? 'Registrando...' : 'Abrir Ticket'}
             </button>
           </form>
         </div>
       )}
 
-      <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Lista de Chamados</h3>
+      {/* PAINEL DE FILTROS E TABELA */}
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}>
+        
+        {/* CONTROLES INTEGRADOS: ABAS + BARRA DE BUSCA */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1.25rem' }}>
+          
+          {/* Abas */}
+          <div style={{ display: 'flex', gap: '0.25rem', backgroundColor: '#f1f5f9', padding: '0.35rem', borderRadius: '8px' }}>
+            {(['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED'] as FilterType[]).map(status => (
+              <button key={status} onClick={() => setFilterStatus(status)} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', backgroundColor: filterStatus === status ? '#fff' : 'transparent', color: filterStatus === status ? '#0f172a' : '#64748b', boxShadow: filterStatus === status ? '0 1px 3px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.15s' }}>
+                {status === 'ALL' ? 'Todos' : status}
+              </button>
+            ))}
+          </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #dee2e6', paddingBottom: '0.75rem' }}>
-          {(['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED'] as FilterType[]).map(status => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                backgroundColor: filterStatus === status ? '#0070f3' : '#fff',
-                color: filterStatus === status ? '#fff' : '#495057',
-                borderColor: filterStatus === status ? '#0070f3' : '#ccc',
-                transition: 'all 0.1s ease-in-out'
-              }}
-            >
-              {status === 'ALL' ? 'Todos' : status}
-            </button>
-          ))}
+          {/* Input de Busca Textual Real-time */}
+          <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+            <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="🔍 Buscar por palavra-chave..." style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+
         </div>
 
+        {/* TABELA PREMIUM */}
         {loading ? (
-          <p>Carregando chamados...</p>
+          <p style={{ color: '#64748b' }}>Carregando dados estruturados...</p>
         ) : filteredTickets.length === 0 ? (
-          <p style={{ color: '#6c757d', textAlign: 'center', padding: '2rem' }}>Nenhum chamado neste status.</p>
+          <p style={{ color: '#94a3b8', textAlign: 'center', padding: '3rem 1rem', fontSize: '0.95rem' }}>Nenhum chamado corresponde aos filtros selecionados.</p>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #dee2e6', color: '#495057' }}>
-                <th style={{ padding: '0.75rem' }}>Título</th>
-                <th style={{ padding: '0.75rem' }}>Descrição</th>
-                {user?.role === 'ADMIN' && <th style={{ padding: '0.75rem' }}>Criado Por</th>}
-                <th style={{ padding: '0.75rem' }}>Data</th>
-                <th style={{ padding: '0.75rem' }}>Status</th>
+              <tr style={{ borderBottom: '1px solid #edf2f7', color: '#475569', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <th style={{ padding: '1rem 0.75rem' }}>Caso</th>
+                {user?.role === 'ADMIN' && <th style={{ padding: '1rem 0.75rem' }}>Solicitante</th>}
+                <th style={{ padding: '1rem 0.75rem' }}>Data de Abertura</th>
+                <th style={{ padding: '1rem 0.75rem', textAlign: 'right' }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {filteredTickets.map(ticket => (
-                <tr 
-                  key={ticket.id} 
-                  onClick={() => setSelectedTicket(ticket)}
-                  style={{ borderBottom: '1px solid #dee2e6', cursor: 'pointer', transition: 'background 0.2s' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <td style={{ padding: '1rem 0.75rem', fontWeight: 'bold', color: '#0070f3' }}>{ticket.title}</td>
-                  <td style={{ padding: '1rem 0.75rem', color: '#495057', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.description}</td>
-                  {user?.role === 'ADMIN' && <td style={{ padding: '1rem 0.75rem' }}>{ticket.creator_name || 'Desconhecido'}</td>}
-                  <td style={{ padding: '1rem 0.75rem', color: '#6c757d' }}>{new Date(ticket.created_at).toLocaleDateString('pt-BR')}</td>
-                  <td style={{ padding: '1rem 0.75rem' }}>
-                    <span style={{ padding: '0.25rem 0.6rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', ...getStatusStyle(ticket.status) }}>
+                <tr key={ticket.id} onClick={() => setSelectedTicket(ticket)} style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                  <td style={{ padding: '1.25rem 0.75rem' }}>
+                    <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '0.25rem', fontSize: '0.95rem' }}>{ticket.title}</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem', maxWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.description}</div>
+                  </td>
+                  {user?.role === 'ADMIN' && <td style={{ padding: '1.25rem 0.75rem', color: '#334155', fontSize: '0.9rem', fontWeight: 500 }}>{ticket.creator_name || 'Usuário'}</td>}
+                  <td style={{ padding: '1.25rem 0.75rem', color: '#64748b', fontSize: '0.9rem' }}>{new Date(ticket.created_at).toLocaleDateString('pt-BR')}</td>
+                  <td style={{ padding: '1.25rem 0.75rem', textAlign: 'right' }}>
+                    <span style={{ padding: '0.35rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.025em', ...getStatusStyle(ticket.status) }}>
                       {ticket.status}
                     </span>
                   </td>
